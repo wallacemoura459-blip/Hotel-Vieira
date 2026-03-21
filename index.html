@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Vieira - Gestão Profissional</title>
+    <link
+      rel="icon"
+      href="https://cdn-icons-png.flaticon.com"
+      type="image/png"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com" />
+
+    <style>
+      :root {
+        --primary: #1a73e8;
+        --primary-dark: #1557b0;
+        --danger: #d93025;
+        --success: #28a745;
+        --bg: #f8f9fa;
+        --text: #3c4043;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        scroll-behavior: smooth;
+      }
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      header {
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 15px 0;
+        margin-bottom: 30px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      nav a {
+        text-decoration: none;
+        color: var(--text);
+        margin-left: 20px;
+        font-weight: 500;
+      }
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+      .dash-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-left: 5px solid var(--primary);
+      }
+      .dash-card i {
+        font-size: 2em;
+        color: var(--primary);
+      }
+      .dash-card span {
+        font-size: 1.5em;
+        font-weight: bold;
+        display: block;
+      }
+      .card {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        margin-bottom: 30px;
+      }
+      .input-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #dadce0;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      .btn-save {
+        background: var(--primary);
+        color: white;
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .btn-reserve,
+      .btn-check-out {
+        background: var(--success);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .btn-delete {
+        background: none;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .btn-print {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .btn-backup {
+        background: #6f42c1;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8em;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+      }
+      .badge-quarto {
+        background: #e8f0fe;
+        color: var(--primary);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      .badge-metodo {
+        background: #f1f3f4;
+        color: #5f6368;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        border: 1px solid #dadce0;
+      }
+      .search-box {
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+      }
+      .search-box input {
+        padding-left: 40px !important;
+        border-radius: 25px !important;
+        background: #f1f3f4;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      }
+      .modal-content {
+        background: white;
+        margin: 5% auto;
+        padding: 25px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+      }
+      .close {
+        float: right;
+        font-size: 28px;
+        cursor: pointer;
+      }
+      #valorTotalDisplay {
+        background: #e8f0fe;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+        text-align: center;
+        color: var(--primary);
+        border: 1px dashed var(--primary);
+        font-weight: bold;
+      }
+      #totalFaturadoBox {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+        color: var(--success);
+        background: #eafaf1;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid #d4edda;
+      }
+      .table-responsive {
+        overflow-x: auto;
+      }
+      @media print {
+        header,
+        #cadastroSec,
+        .search-box,
+        .btn-delete,
+        .btn-reserve,
+        .btn-print,
+        nav,
+        #dashboard {
+          display: none !important;
+        }
+        .card {
+          box-shadow: none;
+          border: 1px solid #eee;
+        }
+      }
+      @media (max-width: 600px) {
+        .input-group {
+          grid-template-columns: 1fr;
+        }
+        header .container {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1><i class="fas fa-hotel"></i> Hotel Vieira</h1>
+        <nav>
+          <a href="#cadastroSec">Cadastro</a>
+          <a href="#reservasSec">Reservas</a>
+          <a href="#faturamentoSec">Faturamento</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="dashboard" class="dashboard-grid">
+        <div class="dash-card">
+          <i class="fas fa-bed"></i>
+          <div>
+            <span id="quartosOcupados">0</span>
+            <p>Quartos Ocupados</p>
+          </div>
+        </div>
+        <div class="dash-card">
+          <i class="fas fa-percentage"></i>
+          <div>
+            <span id="taxaOcupacao">0%</span>
+            <p>Ocupação</p>
+          </div>
+        </div>
+        <div class="dash-card">
+          <i class="fas fa-door-open"></i>
+          <div>
+            <span id="checkoutsHoje">0</span>
+            <p>Saídas Hoje</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="cadastroSec" class="card">
+        <h2><i class="fas fa-user-circle"></i> Novo Cliente</h2>
+        <form id="cadastroForm">
+          <div class="input-group">
+            <input type="text" id="nome" placeholder="Nome" required />
+            <input
+              type="text"
+              id="sobrenome"
+              placeholder="Sobrenome"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <input type="email" id="email" placeholder="E-mail" required />
+            <input type="tel" id="telefone" placeholder="Telefone" required />
+          </div>
+          <input type="text" id="endereco" placeholder="Endereço" required />
+          <div style="margin-top: 10px">
+            <label>Nascimento:</label
+            ><input type="date" id="dataNascimento" required />
+          </div>
+          <button type="submit" class="btn-save">Finalizar Cadastro</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2><i class="fas fa-users"></i> Clientes Registrados</h2>
+        <div class="search-box">
+          <i class="fas fa-search"></i
+          ><input
+            type="text"
+            id="buscaCliente"
+            placeholder="Buscar cliente..."
+            onkeyup="filtrarClientes()"
+          />
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Telefone</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="clientesList"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="reservasSec" class="card">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+          "
+        >
+          <h2><i class="fas fa-receipt"></i> Reservas Ativas</h2>
+          <button onclick="imprimirRelatorio()" class="btn-print">
+            <i class="fas fa-print"></i> Imprimir
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Hóspede</th>
+                <th>Quarto</th>
+                <th>Entrada</th>
+                <th>Saída</th>
+                <th>Total</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="reservasList"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section
+        id="faturamentoSec"
+        class="card"
+        style="border-top: 4px solid #28a745"
+      >
+        <h2><i class="fas fa-money-bill-wave"></i> Faturamento</h2>
+        <div id="totalFaturadoBox">
+          Total Arrecadado: <strong>R$ 0,00</strong>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Hóspede</th>
+                <th>Quarto</th>
+                <th>Total Pago</th>
+                <th>Método</th>
+                <th>Check-out</th>
+              </tr>
+            </thead>
+            <tbody id="historicoList"></tbody>
+          </table>
+        </div>
+        <div
+          style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px"
+        >
+          <button
+            onclick="limparHistorico()"
+            class="btn-delete"
+            style="background: #ffc107; color: black; border: none"
+          >
+            <i class="fas fa-eraser"></i> Limpar Histórico
+          </button>
+          <button onclick="exportarDados()" class="btn-backup">
+            <i class="fas fa-download"></i> Baixar Backup
+          </button>
+          <label
+            for="importFile"
+            class="btn-backup"
+            style="background: #17a2b8; cursor: pointer"
+            ><i class="fas fa-upload"></i> Restaurar Backup</label
+          >
+          <input
+            type="file"
+            id="importFile"
+            style="display: none"
+            onchange="importarDados(event)"
+          />
+        </div>
+      </section>
+    </main>
+
+    <!-- MODAL RESERVA -->
+    <div id="modalReserva" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="fecharModal()">&times;</span>
+        <h3>Nova Reserva: <span id="nomeHospede"></span></h3>
+        <form id="reservaForm">
+          <div class="input-group">
+            <div>
+              <label>Check-in:</label
+              ><input type="date" id="checkin" required />
+            </div>
+            <div>
+              <label>Check-out:</label
+              ><input type="date" id="checkout" required />
+            </div>
+          </div>
+          <label>Quarto:</label>
+          <select id="quarto" required>
+            <option value="">Selecione o Quarto</option>
+            <option value="101 - Standard">101 - Standard (R$ 150)</option>
+            <option value="102 - Standard">102 - Standard (R$ 150)</option>
+            <option value="201 - Luxo">201 - Luxo (R$ 280)</option>
+            <option value="202 - Suíte Master">
+              202 - Suíte Master (R$ 450)
+            </option>
+          </select>
+          <div id="valorTotalDisplay">Selecione datas e quarto</div>
+          <button type="submit" class="btn-save">Confirmar Reserva</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL CHECKOUT -->
+    <div id="modalCheckout" class="modal">
+      <div class="modal-content" style="border-top: 5px solid var(--success)">
+        <span class="close" onclick="fecharModalCheckout()">&times;</span>
+        <h3>
+          <i class="fas fa-file-invoice-dollar"></i> Finalizar Estadia:
+          <span id="nomeCheckout"></span>
+        </h3>
+        <div
+          id="resumoCheckout"
+          style="
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+          "
+        ></div>
+        <form id="checkoutForm">
+          <input type="hidden" id="checkoutIndex" />
+          <label>Gastos Extras:</label
+          ><input
+            type="number"
+            id="valorExtras"
+            value="0"
+            step="0.01"
+            min="0"
+            required
+          />
+          <label>Método:</label>
+          <select id="metodoPagamentoCheckout" required>
+            <option value="Pix">Pix</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Cartão de Débito">Cartão de Débito</option>
+          </select>
+          <button
+            type="submit"
+            class="btn-save"
+            style="background: var(--success); margin-top: 10px"
+          >
+            Confirmar Check-out
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = "hotel_vieira_clientes",
+        RESERVAS_KEY = "hotel_vieira_reservas",
+        FATURAMENTO_KEY = "hotel_vieira_faturamento";
+      const PRECOS = {
+        "101 - Standard": 150,
+        "102 - Standard": 150,
+        "201 - Luxo": 280,
+        "202 - Suíte Master": 450,
+      };
+
+      function carregarClientes() {
+        const c = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [],
+          lista = document.getElementById("clientesList");
+        lista.innerHTML = c.length
+          ? ""
+          : '<tr><td colspan="4">Nenhum cliente cadastrado.</td></tr>';
+        c.forEach((item, i) => {
+          lista.innerHTML += `<tr><td><strong>${item.nome} ${item.sobrenome}</strong></td><td>${item.email}</td><td>${item.telefone}</td>
+                <td><button onclick="abrirReserva(${i})" class="btn-reserve"><i class="fas fa-calendar-plus"></i></button>
+                <button onclick="excluirCliente(${i})" class="btn-delete"><i class="fas fa-trash"></i></button></td></tr>`;
+        });
+      }
+
+      function filtrarClientes() {
+        const t = document.getElementById("buscaCliente").value.toLowerCase();
+        document
+          .querySelectorAll("#clientesList tr")
+          .forEach(
+            (r) =>
+              (r.style.display = r.innerText.toLowerCase().includes(t)
+                ? ""
+                : "none"),
+          );
+      }
+
+      document
+        .getElementById("cadastroForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const c = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+          c.push({
+            nome: document.getElementById("nome").value,
+            sobrenome: document.getElementById("sobrenome").value,
+            email: document.getElementById("email").value,
+            telefone: document.getElementById("telefone").value,
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(c));
+          this.reset();
+          carregarClientes();
+        });
+
+      function excluirCliente(i) {
+        if (confirm("Excluir cliente?")) {
+          const c = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          c.splice(i, 1);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(c));
+          carregarClientes();
+        }
+      }
+
+      function abrirReserva(i) {
+        const c = JSON.parse(localStorage.getItem(STORAGE_KEY))[i];
+        document.getElementById("nomeHospede").innerText =
+          c.nome + " " + c.sobrenome;
+        document.getElementById("modalReserva").style.display = "block";
+      }
+      function fecharModal() {
+        document.getElementById("modalReserva").style.display = "none";
+        document.getElementById("reservaForm").reset();
+      }
+
+      function atualizarTotalReserva() {
+        const inD = new Date(
+            document.getElementById("checkin").value + "T00:00:00",
+          ),
+          outD = new Date(
+            document.getElementById("checkout").value + "T00:00:00",
+          ),
+          q = document.getElementById("quarto").value;
+        if (inD && outD && q && outD > inD) {
+          const total =
+            Math.ceil(Math.abs(outD - inD) / (1000 * 60 * 60 * 24)) * PRECOS[q];
+          document.getElementById("valorTotalDisplay").innerHTML =
+            `Total: R$ ${total.toFixed(2)}`;
+          return total;
+        }
+        document.getElementById("valorTotalDisplay").innerHTML =
+          "Selecione datas e quarto";
+        return 0;
+      }
+
+      ["checkin", "checkout", "quarto"].forEach((id) =>
+        document
+          .getElementById(id)
+          .addEventListener("change", atualizarTotalReserva),
+      );
+
+      document
+        .getElementById("reservaForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const v = atualizarTotalReserva();
+          if (v <= 0) return alert("Data inválida!");
+          const resEx = JSON.parse(localStorage.getItem(RESERVAS_KEY)) || [];
+          resEx.push({
+            hospede: document.getElementById("nomeHospede").innerText,
+            checkin: document.getElementById("checkin").value,
+            checkout: document.getElementById("checkout").value,
+            quarto: document.getElementById("quarto").value,
+            valorTotal: v,
+          });
+          localStorage.setItem(RESERVAS_KEY, JSON.stringify(resEx));
+          fecharModal();
+          carregarReservas();
+        });
+
+      function carregarReservas() {
+        const r = JSON.parse(localStorage.getItem(RESERVAS_KEY)) || [],
+          lista = document.getElementById("reservasList");
+        lista.innerHTML = r.length
+          ? ""
+          : '<tr><td colspan="6">Sem reservas.</td></tr>';
+        r.forEach((res, i) => {
+          lista.innerHTML += `<tr><td>${res.hospede}</td><td><span class="badge-quarto">${res.quarto}</span></td>
+                <td>${new Date(res.checkin + "T00:00:00").toLocaleDateString()}</td><td>${new Date(res.checkout + "T00:00:00").toLocaleDateString()}</td>
+                <td><strong>R$ ${res.valorTotal.toFixed(2)}</strong></td><td><button onclick="abrirCheckout(${i})" class="btn-check-out">Check-out</button></td></tr>`;
+        });
+        atualizarDashboard();
+      }
+
+      function abrirCheckout(i) {
+        const res = (JSON.parse(localStorage.getItem(RESERVAS_KEY)) || [])[i];
+        document.getElementById("nomeCheckout").innerText = res.hospede;
+        document.getElementById("checkoutIndex").value = i;
+        document.getElementById("resumoCheckout").innerHTML =
+          `<p>Quarto: ${res.quarto}</p><p>Diárias: R$ ${res.valorTotal.toFixed(2)}</p>`;
+        document.getElementById("modalCheckout").style.display = "block";
+      }
+      function fecharModalCheckout() {
+        document.getElementById("modalCheckout").style.display = "none";
+      }
+
+      document
+        .getElementById("checkoutForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const index = document.getElementById("checkoutIndex").value,
+            extras =
+              parseFloat(document.getElementById("valorExtras").value) || 0;
+          const reservas = JSON.parse(localStorage.getItem(RESERVAS_KEY)) || [],
+            faturamento =
+              JSON.parse(localStorage.getItem(FATURAMENTO_KEY)) || [];
+          const reserva = reservas[index];
+          faturamento.push({
+            ...reserva,
+            valorTotal: reserva.valorTotal + extras,
+            metodo: document.getElementById("metodoPagamentoCheckout").value,
+            dataSaida: new Date().toLocaleDateString(),
+          });
+          reservas.splice(index, 1);
+          localStorage.setItem(RESERVAS_KEY, JSON.stringify(reservas));
+          localStorage.setItem(FATURAMENTO_KEY, JSON.stringify(faturamento));
+          fecharModalCheckout();
+          carregarReservas();
+          carregarFaturamento();
+        });
+
+      function carregarFaturamento() {
+        const f = JSON.parse(localStorage.getItem(FATURAMENTO_KEY)) || [],
+          lista = document.getElementById("historicoList");
+        let total = 0;
+        lista.innerHTML = "";
+        f.forEach((item) => {
+          total += item.valorTotal;
+          lista.innerHTML += `<tr><td>${item.hospede}</td><td>${item.quarto}</td><td>R$ ${item.valorTotal.toFixed(2)}</td><td><span class="badge-metodo">${item.metodo}</span></td><td>${item.dataSaida}</td></tr>`;
+        });
+        document.getElementById("totalFaturadoBox").innerHTML =
+          `Total Arrecadado: <strong>R$ ${total.toFixed(2)}</strong>`;
+      }
+
+      function atualizarDashboard() {
+        const r = JSON.parse(localStorage.getItem(RESERVAS_KEY)) || [],
+          hoje = new Date().toISOString().split("T")[0];
+        document.getElementById("quartosOcupados").innerText = r.length;
+        document.getElementById("taxaOcupacao").innerText =
+          ((r.length / 4) * 100).toFixed(0) + "%";
+        document.getElementById("checkoutsHoje").innerText = r.filter(
+          (res) => res.checkout === hoje,
+        ).length;
+      }
+
+      function exportarDados() {
+        const d = {
+          clientes: localStorage.getItem(STORAGE_KEY),
+          reservas: localStorage.getItem(RESERVAS_KEY),
+          faturamento: localStorage.getItem(FATURAMENTO_KEY),
+        };
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(
+          new Blob([JSON.stringify(d)], { type: "application/json" }),
+        );
+        a.download = "backup_hotel.json";
+        a.click();
+      }
+
+      function importarDados(e) {
+        const f = e.target.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = function (e) {
+          const d = JSON.parse(e.target.result);
+          localStorage.setItem(STORAGE_KEY, d.clientes);
+          localStorage.setItem(RESERVAS_KEY, d.reservas);
+          localStorage.setItem(FATURAMENTO_KEY, d.faturamento);
+          location.reload();
+        };
+        r.readAsText(f);
+      }
+
+      function limparHistorico() {
+        if (confirm("Limpar faturamento?")) {
+          localStorage.removeItem(FATURAMENTO_KEY);
+          carregarFaturamento();
+        }
+      }
+      function imprimirRelatorio() {
+        window.print();
+      }
+
+      window.onload = () => {
+        carregarClientes();
+        carregarReservas();
+        carregarFaturamento();
+        atualizarDashboard();
+      };
+      window.onclick = (e) => {
+        if (e.target.className === "modal") {
+          fecharModal();
+          fecharModalCheckout();
+        }
+      };
+    </script>
+  </body>
+</html>
